@@ -3,6 +3,9 @@ package com.robillo.accessstudentsprovider;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -10,7 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
 
     public static final String PROVIDER_NAME = "com.appbusters.robinkamboj.udacitysyllabuspart1.controller.StudentsProvider";
     public static final String URL = "content://" + PROVIDER_NAME + "/students";
@@ -29,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        getSupportLoaderManager().initLoader(0, null, this);
 
         name = (EditText) findViewById(R.id.editText2);
         grade = (EditText) findViewById(R.id.editText3);
@@ -65,5 +70,31 @@ public class MainActivity extends AppCompatActivity {
         if (c != null) {
             c.close();
         }
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(MainActivity.this, CONTENT_URI, null, null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor c) {
+        if (c != null && c.moveToFirst()) {
+            do {
+                Toast.makeText(MainActivity.this,
+                        c.getString(c.getColumnIndex(_ID)) +
+                                ", " + c.getString(c.getColumnIndex(NAME)) +
+                                ", " + c.getString(c.getColumnIndex(GRADE)),
+                        Toast.LENGTH_SHORT).show();
+            } while (c.moveToNext());
+        }
+        if (c != null) {
+            c.close();
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
     }
 }
